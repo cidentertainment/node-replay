@@ -1,6 +1,6 @@
-assert = require("assert")
-http = require("http")
-replay = require("../lib/replay")
+const assert = require("assert");
+const http = require("http");
+const retell = require("../lib/retell");
 
 http.get({ hostname: "www.iheartquotes.com", path: "/api/v1/random" }, function(response) {
   response.body = "";

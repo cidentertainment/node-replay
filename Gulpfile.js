@@ -5,7 +5,6 @@ const exec        = require('gulp-exec');
 const File        = require('fs');
 const gulp        = require('gulp');
 const gutil       = require('gulp-util');
-const notify      = require('gulp-notify');
 const sourcemaps  = require('gulp-sourcemaps');
 const babel       = require('gulp-babel');
 
@@ -30,11 +29,7 @@ gulp.task('build', ['clean', 'lint'], function() {
     .pipe(sourcemaps.init())
     .pipe(babel())
     .pipe(sourcemaps.write('.'))
-    .pipe(gulp.dest('lib'))
-    .pipe(notify({
-      message: 'Zombie: built!',
-      onLast:  true
-    }));
+    .pipe(gulp.dest('lib'));
 });
 
 
@@ -71,9 +66,10 @@ gulp.task('tag', ['changes'], function() {
 gulp.task('changes', function() {
   const version   = require('./package.json').version;
   const changelog = File.readFileSync('CHANGELOG.md', 'utf-8');
-  const match     = changelog.match(/^## Version (.*) .*\n([\S\s]+?)\n##/m);
+  // ## 0.1.0 - 2016-07-28
+  const match     = changelog.match(/^## (\d+.\d+.\d+) - .*\n([\S\s]+?)\n## /m);
 
-  assert(match, 'CHANGELOG.md missing entry: ## Version ' + version);
+  assert(match, 'CHANGELOG.md missing entry: ## ' + version);
   assert.equal(match[1], version, 'CHANGELOG.md missing entry for version ' + version);
 
   const changes   = match[2].trim();

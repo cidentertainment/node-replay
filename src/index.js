@@ -1,5 +1,5 @@
 
-// The Replay module holds global configution properties and methods.
+// The Retell module holds global configution properties and methods.
 
 
 const Catalog           = require('./catalog');
@@ -68,7 +68,7 @@ class Replay extends EventEmitter {
     this._localhosts  = new Set('localhost', '127.0.0.1', '::1');
     // Pass through requests to these servers
     this._passThrough = new Set();
-    // Dropp connections to these servers
+    // Drop connections to these servers
     this._dropped     = new Set();
 
     this.catalog = new Catalog(this);
@@ -156,7 +156,7 @@ class Replay extends EventEmitter {
 }
 
 
-const replay = new Replay(process.env.REPLAY || DEFAULT_MODE);
+const replay = new Replay(process.env.NODE_REPLAY_MODE || DEFAULT_MODE);
 
 
 function passWhenBloodyOrCheat(request) {

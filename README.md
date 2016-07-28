@@ -1,7 +1,8 @@
-# Node Replay
+# Node Retell 
 
+Formally [node-replay](https://github.com/assaf/node-replay).
 
-### When API testing slows you down: record and replay HTTP responses like a boss
+### When API testing slows you down: retell recorded HTTP responses
 
 Things that will ruin your day when tests make HTTP requests to other services:
 
@@ -19,12 +20,12 @@ Things **node-replay** can do to make these problems go away:
 - Not suck
 
 
-## How to use node-replay
+## How to use node-retell
 
 Like this:
 
 ```bash
-npm install replay
+npm install retell
 ```
 
 Now write some simple test case:
@@ -32,7 +33,7 @@ Now write some simple test case:
 ```javascript
 const assert  = require('assert');
 const HTTP    = require('http');
-const Replay  = require('replay');
+const Replay  = require('retell');
 
 HTTP.get({ hostname: 'www.iheartquotes.com', path: '/api/v1/random' }, function(response) {
   var body = '';
@@ -63,7 +64,7 @@ mode it will replay any previously captured HTTP response, but it will not allow
 any outgoing network connection.
 
 That's the default mode for running tests.  "Why?" you ask.  Good question.
-Running in `replay` mode forces any test you run to use recorded reponses, and
+Running in `replay` mode forces any test you run to use recorded responses, and
 so it will run (and fail or pass) the same way for anyone else, any other day of
 the week, on whatever hardware they use.  Even if they're on the AT&T network.
 
@@ -71,14 +72,14 @@ Running in `replay` mode helps you write repeatable tests.  Repeatable tests are
 a Good Thing.
 
 So the first thing you want to do to get that test to pass, is to run
-**node-replay** in `record` mode.  In this mode it will replay any recorded
+**node-retell** in `record` mode.  In this mode it will replay any recorded
 response, but if no response was recorded, it will make a request to the server
 and capture the response.
 
 Let's do that:
 
 ```bash
-REPLAY=record node test.js
+NODE_REPLAY_MODE=record node test.js
 ```
 
 That wasn't too hard, but the test is still failing.  "How?"  You must be
@@ -101,7 +102,7 @@ $ node test.js
 
 Did the test pass?  Of course it did.  Run it again.  Still passing?  Why, yes.
 
-So let's have a look at that captured response.  All the respones recorded for
+So let's have a look at that captured response.  All the responses recorded for
 'I <3 Quotes>' will be listed here:
 
 ```bash
@@ -110,15 +111,15 @@ ls fixtures/www.iheartquotes.com/
 
 There should be only one file there, since we only recorded one response.  The
 file name is a timestamp, but feel free to rename it to something more
-rescriptive.
+descriptive.
 
 The name of a response file doesn't matter, it can be whatever you want.  The
 name of the directory does, though, it matches the service hostname (and port
 when not 80).
 
 So that was one way to fix the failing test.  Another one is to change the
-recorded response to match the assertion.  Being able to edit (and create new)
-responses is quite important.  Sometimes it's the easiest way to create mock
+recorded response to match the assertion.  Being able to edit (or create new)
+responses is quite important. Sometimes it's the easiest way to create mock
 responses for testing, e.g. if you're trying to test failure conditions that are
 hard to come by.
 
@@ -126,7 +127,7 @@ So let's edit the response file and change the body part, so the entire response
 reads like this:
 
 ```
-/api/v1/random
+GET /api/v1/random
 
 HTTP/1.1 200 OK
 server: nginx/0.7.67
@@ -150,7 +151,7 @@ Oxymoron 2. Exact estimate
 All responses are stored as text files using the simplest format ever, so you
 can edit them in Vim, or any of the many non-Vim text editors in existence:
 
-- First comes the request path (including query string)
+- First comes the request method and path (including query string)
 - Followed by any headers sent as part of the request (like `Accept` and `Authorization`)
 - Then an empty line
 - Next the response status code and (optional) HTTP version number
@@ -193,17 +194,17 @@ requests.
 This is the default mode.  That's another way of saying, "you'll be running in
 this mode most of the time".
 
-You can set the mode by setting the environment variable `REPLAY` to one of
+You can set the mode by setting the environment variable `NODE_REPLAY_MODE` to one of
 these values:
 
 ```bash
-REPLAY=record node test.js
+NODE_REPLAY_MODE=record node test.js
 ```
 
 Of from your code by setting `replay.mode`:
 
 ```javascript
-const Replay = require('replay');
+const Replay = require('retell');
 Replay.mode = 'record';
 ```
 
@@ -217,7 +218,7 @@ Like this:
 Replay.fixtures = __dirname + '/fixtures/replay';
 ```
 
-You can tell **node-replay** what hosts to treat as "localhost".  Requests to
+You can tell **node-retell** what hosts to treat as "localhost".  Requests to
 these hosts will be routed to 127.0.0.1, without capturing or replay.  This is
 particularly useful if you're making request to a test server and want to use
 the same URL as production.
@@ -277,7 +278,7 @@ Since headers are case insensitive, we always match on the lower case name.
 
 ## Geeking
 
-To make all that magic possible, **node-replay** replaces
+To make all that magic possible, **node-retell** replaces
 `require('http').request` with its own method.  That method returns a
 `ProxyRequest` object that captures the request URL, headers and body.
 
@@ -302,5 +303,4 @@ storing new ones on disk, is handled by ... cue big band ... the `Catalog`.
 
 ## Final words
 
-**node-replay** is released under the MIT license.  Pull requests are welcome.
-
+**node-retell** is a fork of **node-replay**, released under the MIT license.  Pull requests are welcome.
