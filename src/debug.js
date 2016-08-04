@@ -1,1 +1,1 @@
-module.exports = require('debug')('replay');
+module.exports = require('debug')('retell');
