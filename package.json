@@ -29,7 +29,8 @@
   "dependencies": {
     "babel-runtime": "^6.11.6",
     "debug": "^2.0.0",
-    "js-string-escape": "~1.0.0"
+    "js-string-escape": "~1.0.0",
+    "normalize-url": "^1.6.0"
   },
   "devDependencies": {
     "async": "^0.9.0",

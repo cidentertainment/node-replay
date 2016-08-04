@@ -90,6 +90,7 @@ describe('Replay', function() {
   describe('matching on query strings', function() {
     let response1;
     let response2;
+    let response3;
 
     before(function(done) {
       HTTP.get({ hostname: 'example.com', port: INACTIVE_PORT, path: '/query?param=1' })
@@ -105,7 +106,8 @@ describe('Replay', function() {
     });
 
     before(function(done) {
-      HTTP.get({ hostname: 'example.com', port: INACTIVE_PORT, path: '/query?param=2' })
+      // ordered params
+      HTTP.get({ hostname: 'example.com', port: INACTIVE_PORT, path: '/query?param=2&param2=' })
         .on('response', function(_) {
           response2 = _;
           response2.body = '';
@@ -117,10 +119,25 @@ describe('Replay', function() {
         .on('error', done);
     });
 
+    before(function(done) {
+      // unordered params
+      HTTP.get({ hostname: 'example.com', port: INACTIVE_PORT, path: '/query?param2=&param=2' })
+        .on('response', function(_) {
+          response3 = _;
+          response3.body = '';
+          response3.on('data', function(chunk) {
+            response3.body += chunk;
+          });
+          response3.on('end', done);
+        })
+        .on('error', done);
+    });
+
     it('should select the correct fixture', function() {
       // HTTP body contains tailing line feeds, use trim to get rid of them
       assert.equal(response1.body.trim(), '1');
       assert.equal(response2.body.trim(), '2');
+      assert.equal(response3.body.trim(), '2');
     });
   });
 
