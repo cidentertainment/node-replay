@@ -19,6 +19,7 @@
 const assert         = require('assert');
 const URL            = require('url');
 const jsStringEscape = require('js-string-escape');
+const normalizeURL   = require('normalize-url');
 
 // Simple implementation of a matcher.
 //
@@ -35,7 +36,7 @@ module.exports = class Matcher {
       const url = URL.parse(request.url);
       this.hostname = url.hostname;
       this.port     = url.port;
-      this.path     = url.path;
+      this.path     = normalizeURL(url.path);
     }
 
     this.method   = (request.method && request.method.toUpperCase()) || 'GET';
@@ -81,17 +82,18 @@ module.exports = class Matcher {
     const { url, method, headers, body } = request;
     if (this.hostname && this.hostname !== url.hostname)
       return false;
+    if (this.method !== method)
+      return false;
     if (this.regexp) {
       if (!this.regexp.test(url.path))
         return false;
     } else {
       if (this.port && this.port !== url.port)
         return false;
-      if (this.path && this.path !== url.path)
+      if (this.path && (this.path !== url.path && this.path !== normalizeURL(url.path))) {
         return false;
+      }
     }
-    if (this.method !== method)
-      return false;
 
     for (let name in this.headers) {
       if (this.headers[name] !== headers[name])
