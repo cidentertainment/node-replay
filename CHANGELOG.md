@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.1.0 - 2016-08-05
+
+- Normalize request path during comparison. 
+- `NODE_RETELL_MODE` env variable was not taken into account.
+- Finish re-branding to **node-retell**.
+
 ## 1.0.0 - 2016-07-28
 
 Fork [node-replay](https://www.npmjs.com/package/replay) to node-retell.
