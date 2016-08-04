@@ -1,6 +1,11 @@
 # Node Retell 
 
-Formally [node-replay](https://github.com/assaf/node-replay).
+***
+
+node-retell is **a fork** of [node-replay](https://github.com/assaf/node-replay) library, 
+as original library is abandoned and unmaintained. 
+
+***
 
 ### When API testing slows you down: retell recorded HTTP responses
 
@@ -12,7 +17,7 @@ Things that will ruin your day when tests make HTTP requests to other services:
 - Same request returns different result each time
 - Everyone else on the network is deep in BitTorrent territory
 
-Things **node-replay** can do to make these problems go away:
+Things **node-retell** can do to make these problems go away:
 
 - Record API response once, replay as often as necessary
 - Stub HTTP requests (TBD)
@@ -33,7 +38,7 @@ Now write some simple test case:
 ```javascript
 const assert  = require('assert');
 const HTTP    = require('http');
-const Replay  = require('retell');
+const retell  = require('retell');
 
 HTTP.get({ hostname: 'www.iheartquotes.com', path: '/api/v1/random' }, function(response) {
   var body = '';
@@ -59,11 +64,11 @@ Error: Connection to http://www.iheartquotes.com:80/api/v1/random refused: not r
     at EventEmitter._tickCallback (node.js:192:40)
 ```
 
-Unless you tell it otherwise, **node-replay** runs in `replay` mode.  In this
-mode it will replay any previously captured HTTP response, but it will not allow
+Unless you tell it otherwise, **node-retell** runs in `replay` mode. In this mode 
+it will *replay* any previously captured HTTP response, but it will not allow
 any outgoing network connection.
 
-That's the default mode for running tests.  "Why?" you ask.  Good question.
+That's the default mode for running tests. "Why?" you ask.  Good question.
 Running in `replay` mode forces any test you run to use recorded responses, and
 so it will run (and fail or pass) the same way for anyone else, any other day of
 the week, on whatever hardware they use.  Even if they're on the AT&T network.
@@ -79,7 +84,7 @@ and capture the response.
 Let's do that:
 
 ```bash
-NODE_REPLAY_MODE=record node test.js
+NODE_RETELL_MODE=record node test.js
 ```
 
 That wasn't too hard, but the test is still failing.  "How?"  You must be
@@ -149,7 +154,7 @@ Oxymoron 2. Exact estimate
 ```
 
 All responses are stored as text files using the simplest format ever, so you
-can edit them in Vim, or any of the many non-Vim text editors in existence:
+can edit them in any text editor:
 
 - First comes the request method and path (including query string)
 - Followed by any headers sent as part of the request (like `Accept` and `Authorization`)
@@ -175,15 +180,15 @@ Content-Type: text/html
 We've got them.  Just enough to make you happy and not enough to take all day to
 explain.
 
-The first and most obvious is the mode you run **node-reply** in:
+The first and most obvious is the mode you run **node-retell** in:
 
 **bloody** -- All requests go out, none get replayed.  Use this if you want to
-remember what life was before you started using **node-replay**.  Also, to test
-your code against changes to 3rd party API, because these do happen.  Too often.
+remember what life was before you started using **node-retell**.  Also, to test
+your code against changes to 3rd party API, because these do happen.
 
 **cheat** -- Replays recorded responses, and allow HTTP outbound requests.  This
 is mighty convenient when you're writing new tests or changing code to make new,
-un-recorded HTTP requests, but you haven't quite settled on which requets to
+un-recorded HTTP requests, but you haven't quite settled on which request to
 make, so you don't want any responses recorded quite yet.
 
 **record** -- Replays recorded responses, or captures responses for future
@@ -194,28 +199,28 @@ requests.
 This is the default mode.  That's another way of saying, "you'll be running in
 this mode most of the time".
 
-You can set the mode by setting the environment variable `NODE_REPLAY_MODE` to one of
+You can set the mode by setting the environment variable `NODE_RETELL_MODE` to one of
 these values:
 
 ```bash
-NODE_REPLAY_MODE=record node test.js
+NODE_RETELL_MODE=record node test.js
 ```
 
-Of from your code by setting `replay.mode`:
+Of from your code by setting `retell.mode` in your code:
 
 ```javascript
-const Replay = require('retell');
-Replay.mode = 'record';
+const retell = require('retell');
+retell.mode = 'record';
 ```
 
-Of course, **node-replay** needs to store all those captured responses somewhere,
+Of course, **node-retell** needs to store all those captured responses somewhere,
 and by default it will put them in the directory `fixtures`.  Bet you have an
 idea for a better directory name.  Easy to change.
 
 Like this:
 
 ```javascript
-Replay.fixtures = __dirname + '/fixtures/replay';
+retell.fixtures = __dirname + '/fixtures/retell';
 ```
 
 You can tell **node-retell** what hosts to treat as "localhost".  Requests to
@@ -226,7 +231,7 @@ the same URL as production.
 For example:
 
 ```javascript
-Replay.localhost('www.example.com');
+retell.localhost('www.example.com');
 ```
 
 If you don't want requests going to specific server, you can add them to the
@@ -234,25 +239,25 @@ drop list.  For example, Google Analytics, where you don't care that the request
 go through, and you don't want to record it.
 
 ```javascript
-Replay.drop('www.google-analytics.com', 'rollbar.com');
+retell.drop('www.google-analytics.com', 'rollbar.com');
 ```
 
 Likewise, you can tell **node-reply** to pass through requests to specific hosts:
 
 ```javascript
-Replay.passThrough('s3.amazonaws.com');
+retell.passThrough('s3.amazonaws.com');
 ```
 
 If you're running into trouble, try turning debugging mode on.  It helps.
 Sometimes.
 
 ```bash
-$ DEBUG=replay node test.js
+$ DEBUG=retell node test.js
 => Requesting http://www.iheartquotes.com:80/api/v1/random
 => Woot!
 ```
 
-By default, **node-replay** will record the following headers with each request,
+By default, **node-retell** will record the following headers with each request,
 and use only these headers when matching pre-recorded requests:
 
 - Headers starting with `Accept` (eg `Accept-Encoding`)
@@ -264,13 +269,13 @@ and use only these headers when matching pre-recorded requests:
 - Headers starting with `X-` (eg `X-Requested-With`)
 
 You can modify the list of matched headers, adding or removing headers, by
-changing the value of `Replay.headers`.  The value is an array of regular
+changing the value of `retell.headers`.  The value is an array of regular
 expressions.
 
 For example, to capture `content-length` (useful with file uploads):
 
 ```javascript
-Replay.headers.push(/^content-length/);
+retell.headers.push(/^content-length/);
 ```
 
 Since headers are case insensitive, we always match on the lower case name.
@@ -290,17 +295,18 @@ pass to the next proxy down the chain.
 
 The proxy chain looks something like this:
 
-- Logger dumps the request URL when running with `DEBUG=replay`
+- Logger dumps the request URL when running with `DEBUG=retell`
 - The pass-through proxy will pass the request directly to the server in `bloody` mode, or when talking to `localhost`
-- The recorder proxy will either replay a captured request (if it has one), talk to the server and capture the response
+- The recorder proxy will either *replay* a captured request (if it has one), talk to the server and capture the response
   (in `record` mode), or pass to the next proxy
 - The pass-through proxy (2nd one) will pass the request to the server in `cheat` mode, return nothing in all other
   modes
 
 Loading pre-recorded responses to memory, from where they can be replayed, and
-storing new ones on disk, is handled by ... cue big band ... the `Catalog`.
+storing new ones on disk, is handled by the `Catalog`.
 
 
 ## Final words
 
-**node-retell** is a fork of **node-replay**, released under the MIT license.  Pull requests are welcome.
+**node-retell** is a fork of **node-replay** and released under the MIT license.  
+Pull requests are welcome.

@@ -5,7 +5,7 @@ const HTTP    = require('http');
 const HTTPS   = require('https');
 const Async   = require('async');
 const Request = require('request');
-const Replay  = require('../src');
+const Retell  = require('../src');
 
 
 // Test replaying results from fixtures in spec/fixtures.
@@ -16,7 +16,7 @@ describe('Replay', function() {
   describe('matching URL', function() {
 
     before(function() {
-      Replay.mode = 'replay';
+      Retell.mode = 'replay';
     });
 
     describe('listeners', function() {
@@ -129,7 +129,7 @@ describe('Replay', function() {
     let response;
 
     before(function() {
-      Replay.mode = 'replay';
+      Retell.mode = 'replay';
     });
 
     before(function(done) {
@@ -154,7 +154,7 @@ describe('Replay', function() {
     let response;
 
     before(function() {
-      Replay.mode = 'replay';
+      Retell.mode = 'replay';
     });
 
     before(function(done) {
@@ -180,7 +180,7 @@ describe('Replay', function() {
     let response;
 
     before(function() {
-      Replay.mode = 'replay';
+      Retell.mode = 'replay';
     });
 
     before(function(done) {
@@ -204,7 +204,7 @@ describe('Replay', function() {
 
   describe('matching when changing fixtures dir', function() {
     before(function() {
-      Replay.mode = 'replay';
+      Retell.mode = 'replay';
     });
 
     describe('original catalog', function() {
@@ -237,7 +237,7 @@ describe('Replay', function() {
       let response;
 
       before(function() {
-        Replay.fixtures = `${__dirname}/fixtures/other-fixtures-dir`;
+        Retell.fixtures = `${__dirname}/fixtures/other-fixtures-dir`;
       });
 
       before(function(done) {
@@ -262,7 +262,7 @@ describe('Replay', function() {
       });
 
       after(function() {
-        Replay.fixtures = `${__dirname}/fixtures`;
+        Retell.fixtures = `${__dirname}/fixtures`;
       });
     });
 
@@ -275,8 +275,8 @@ describe('Replay', function() {
     before(setup);
 
     before(function() {
-      Replay.mode = 'record';
-      Replay.reset('127.0.0.1');
+      Retell.mode = 'record';
+      Retell.reset('127.0.0.1');
     });
 
     it('should create a fixture per unique URL path', function(done) {
@@ -308,7 +308,7 @@ describe('Replay', function() {
           done(error);
         else {
           // fixtures should be written now
-          Replay.mode = 'replay';
+          Retell.mode = 'replay';
           Async.series(requests, done);
         }
       });
@@ -329,8 +329,8 @@ describe('Replay', function() {
     before(setup);
 
     before(function() {
-      Replay.mode = 'record';
-      Replay.reset('127.0.0.1');
+      Retell.mode = 'record';
+      Retell.reset('127.0.0.1');
     });
 
     it('should create unzipped fixture for gzipped reply', function(done) {
@@ -361,7 +361,7 @@ describe('Replay', function() {
           done(error);
         else {
           // fixtures should be written now
-          Replay.mode = 'replay';
+          Retell.mode = 'replay';
           request(done);
         }
       });
@@ -382,8 +382,8 @@ describe('Replay', function() {
     before(setup);
 
     before(function() {
-      Replay.mode = 'record';
-      Replay.reset('127.0.0.1');
+      Retell.mode = 'record';
+      Retell.reset('127.0.0.1');
     });
 
     before(function(done) {
@@ -436,8 +436,8 @@ describe('Replay', function() {
     before(setup);
 
     before(function() {
-      Replay.mode = 'record';
-      Replay.reset('127.0.0.1');
+      Retell.mode = 'record';
+      Retell.reset('127.0.0.1');
     });
 
     before(function(done) {
@@ -477,8 +477,8 @@ describe('Replay', function() {
     before(setup);
 
     before(function() {
-      Replay.mode = 'record';
-      Replay.reset('127.0.0.1');
+      Retell.mode = 'record';
+      Retell.reset('127.0.0.1');
     });
 
     before(function(done) {
@@ -510,7 +510,7 @@ describe('Replay', function() {
 
   describe('replaying with POST body', function() {
     before(function() {
-      Replay.mode = 'replay';
+      Retell.mode = 'replay';
     });
 
     describe('matching', function() {
@@ -543,7 +543,7 @@ describe('Replay', function() {
     let response;
 
     before(function() {
-      Replay.mode = 'replay';
+      Retell.mode = 'replay';
     });
 
     describe('matching', function() {
@@ -575,10 +575,10 @@ describe('Replay', function() {
     before(setup);
 
     before(function() {
-      Replay.mode = 'record';
-      Replay.reset('127.0.0.1');
+      Retell.mode = 'record';
+      Retell.reset('127.0.0.1');
       // Drop the /accept/ header
-      Replay.headers = Replay.headers.filter(header => !header.test('accept'));
+      Retell.headers = Retell.headers.filter(header => !header.test('accept'));
     });
 
     before(function(done) {
@@ -609,7 +609,7 @@ describe('Replay', function() {
     let error;
 
     before(function() {
-      Replay.mode = 'replay';
+      Retell.mode = 'replay';
     });
 
     before(function(done) {
@@ -633,7 +633,7 @@ describe('Replay', function() {
     let error;
 
     before(function() {
-      Replay.mode = 'default';
+      Retell.mode = 'default';
     });
 
     before(function(done) {
@@ -655,7 +655,7 @@ describe('Replay', function() {
   // Mapping specifies a header, make sure we only match requests that have that header value.
   describe('header', function() {
     before(function() {
-      Replay.mode = 'replay';
+      Retell.mode = 'replay';
     });
 
     describe('matching', function() {
@@ -711,7 +711,7 @@ describe('Replay', function() {
 
   describe('method', function() {
     before(function() {
-      Replay.mode = 'replay';
+      Retell.mode = 'replay';
     });
 
     describe('matching', function() {
@@ -775,7 +775,7 @@ describe('Replay', function() {
     let error;
 
     before(function() {
-      Replay.mode = 'default';
+      Retell.mode = 'default';
     });
 
     before(function(done) {
@@ -796,7 +796,7 @@ describe('Replay', function() {
 
   describe('minimal response', function() {
     before(function() {
-      Replay.mode = 'replay';
+      Retell.mode = 'replay';
     });
 
     describe('listeners', function() {

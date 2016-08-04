@@ -10,7 +10,7 @@ const bodyParser  = require('body-parser');
 const compression = require('compression');
 const HTTP        = require('http');
 const HTTPS       = require('https');
-const Replay      = require('../src');
+const Retell      = require('../src');
 const File        = require('fs');
 const Async       = require('async');
 
@@ -26,9 +26,9 @@ const SSL = {
 
 
 // Directory to load fixtures from.
-Replay.fixtures = `${__dirname}/fixtures`;
+Retell.fixtures = `${__dirname}/fixtures`;
 
-Replay.silent = true;
+Retell.silent = true;
 
 
 // Serve pages from localhost.

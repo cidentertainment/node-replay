@@ -2,7 +2,7 @@ const { setup, HTTP_PORT, HTTPS_PORT } = require('./helpers');
 const assert  = require('assert');
 const HTTP    = require('http');
 const HTTPS   = require('https');
-const Replay  = require('../src');
+const Retell  = require('../src');
 
 
 
@@ -14,14 +14,14 @@ describe('Pass through', function() {
   before(setup);
 
   before(function() {
-    Replay.localhost('pass-through');
+    Retell.localhost('pass-through');
   });
 
 
   // Send request to the live server and check the responses.
   describe('bloody', function() {
     before(function() {
-      Replay.mode = 'bloody';
+      Retell.mode = 'bloody';
     });
 
     describe('listeners', function() {
@@ -90,7 +90,7 @@ describe('Pass through', function() {
     });
 
     after(function() {
-      Replay.mode = 'replay';
+      Retell.mode = 'replay';
     });
   });
 
@@ -101,7 +101,7 @@ describe('Pass through', function() {
     before(function() {
       // Make sure we're using passThrough and not just passing request s
       // through HTTP.request
-      Replay.mode = 'bloody';
+      Retell.mode = 'bloody';
       process.env.NODE_TLS_REJECT_UNAUTHORIZED = 0;
     });
 
@@ -181,7 +181,7 @@ describe('Pass through', function() {
     });
 
     after(function() {
-      Replay.mode = 'replay';
+      Retell.mode = 'replay';
     });
   });
 
@@ -189,8 +189,8 @@ describe('Pass through', function() {
   // Send request to the live server, but this time network connection disabled.
   describe('replay', function() {
     before(function() {
-      Replay.mode = 'replay';
-      Replay.reset('pass-through');
+      Retell.mode = 'replay';
+      Retell.reset('pass-through');
     });
 
     describe('listeners', function() {

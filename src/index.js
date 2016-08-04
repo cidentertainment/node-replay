@@ -76,7 +76,7 @@ class Replay extends EventEmitter {
 
     // Automatically emit connection errors and such, also prevent process from crashing
     this.on('error', function(error) {
-      debug(`Replay: ${error.message || error}`);
+      debug(`Retell: ${error.message || error}`);
     });
   }
 
@@ -119,7 +119,8 @@ class Replay extends EventEmitter {
   }
 
   // Treats this host as localhost: requests are routed directly to 127.0.0.1, no
-  // replay.  Useful when you want to send requests to the test server using its
+  // replay.
+  // Useful when you want to send requests to the test server using its
   // production host name.
   localhost(...hosts) {
     this.reset(...hosts);
@@ -156,7 +157,7 @@ class Replay extends EventEmitter {
 }
 
 
-const replay = new Replay(process.env.NODE_REPLAY_MODE || DEFAULT_MODE);
+const replay = new Replay(process.env.NODE_RETELL_MODE || DEFAULT_MODE);
 
 
 function passWhenBloodyOrCheat(request) {
