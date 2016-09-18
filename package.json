@@ -1,7 +1,7 @@
 {
   "name": "retell",
   "description": "When API testing slows you down, retell HTTP responses",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "config": {
     "tag": "next"
   },
