@@ -19,6 +19,7 @@
 const assert         = require('assert');
 const URL            = require('url');
 const jsStringEscape = require('js-string-escape');
+const debug          = require('./debug');
 
 // Simple implementation of a matcher.
 //
@@ -65,6 +66,7 @@ module.exports = class Matcher {
         headers[name.toLowerCase()] = value;
       }
     }
+
     // Copy over trailers to response, downcase trailers names.
     if (response.trailers) {
       const trailers = this.response.trailers;
@@ -79,32 +81,47 @@ module.exports = class Matcher {
   // Quick and effective matching.
   match(request) {
     const { url, method, headers, body } = request;
-    if (this.hostname && this.hostname !== url.hostname)
+    if (this.hostname && this.hostname !== url.hostname) {
+      debug('hostname does not match', this.hostname, url.hostname);
       return false;
+    }
     if (this.regexp) {
-      if (!this.regexp.test(url.path))
+      if (!this.regexp.test(url.path)) {
+        debug('path does not match', this.regexp, url.path);
         return false;
+      }
     } else {
-      if (this.port && this.port !== url.port)
+      if (this.port && this.port !== url.port) {
+        debug('port does not match', this.port, url.port);
         return false;
-      if (this.path && this.path !== url.path)
+      }
+      if (this.path && this.path !== url.path) {
+        debug('path does not match', this.path, url.path);
         return false;
+      }
     }
-    if (this.method !== method)
+    if (this.method !== method) {
+      debug('method does not match', this.method, method);
       return false;
-
-    for (let name in this.headers) {
-      if (this.headers[name] !== headers[name])
-        return false;
     }
+
+    for (let name in this.headers)
+      if (this.headers[name] !== headers[name]) {
+        debug('header does not match', name, this.headers[name], headers[name]);
+        return false;
+      }
+
     if (body) {
       let data = '';
       for (let chunks of body)
         data += chunks[0];
       data = jsStringEscape(data);
-      if (this.body && this.body !== data)
+      if (this.body && this.body !== data) {
+        debug('body does not match', this.body, data);
         return false;
+      }
     }
+    debug('matched!', request.url, this.hostname, this.rexexp ? this.rexexp : this.path);
     return true;
   }
 

@@ -1,3 +1,5 @@
+const createGzip  = require('zlib').createGzip;
+const debug       = require('./debug');
 const passThrough = require('./pass_through');
 
 
@@ -22,6 +24,7 @@ module.exports = function recorded(settings) {
           }
         }
     } catch (error) {
+      debug(error);
       error.code = 'CORRUPT FIXTURE';
       error.syscall = 'connect';
       callback(error);

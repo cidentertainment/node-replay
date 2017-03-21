@@ -7,7 +7,6 @@ const Async   = require('async');
 const Request = require('request');
 const Replay  = require('../src');
 
-
 // Test replaying results from fixtures in spec/fixtures.
 describe('Replay', function() {
 
@@ -333,15 +332,13 @@ describe('Replay', function() {
       Replay.reset('127.0.0.1');
     });
 
-    it('should create unzipped fixture for gzipped reply', function(done) {
+    it('should return gzipped response when requested', function(done) {
       const query = { name: 'Amet', extra: 'consectetur'};
       const request = function(callback) {
         Request.get({
           url:    `http://127.0.0.1:${HTTP_PORT}/query`,
           qs:     query,
-          headers: {
-            'accept-encoding': 'gzip'
-          },
+          gzip:   true,
           json:   true
         }, function(error, response, body) {
           if (error)

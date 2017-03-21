@@ -1,5 +1,5 @@
 const HTTP = require('http');
-const Zlib = require('zlib');
+const createGunzip = require('zlib').createGunzip;
 
 const ClientRequest = HTTP.ClientRequest;
 
@@ -41,11 +41,10 @@ module.exports = function passThrough(passThroughFunction) {
           body:           []
         };
         if (['gzip', 'deflate'].indexOf(captured.headers['content-encoding']) !== -1) {
-          const unzip = Zlib.createUnzip();
-          unzip.trailers = response.trailers;
-          unzip.rawTrailers = response.rawTrailers;
-          response = response.pipe(unzip);
-          delete captured.headers['content-encoding'];
+          const gunzip = createGunzip();
+          gunzip.trailers = response.trailers;
+          gunzip.rawTrailers = response.rawTrailers;
+          response = response.pipe(gunzip);
         }
         response.on('data', function(chunk, encoding) {
           captured.body.push([chunk, encoding]);

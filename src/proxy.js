@@ -29,6 +29,9 @@ const HTTP              = require('http');
 const HTTPS             = require('https');
 const Stream            = require('stream');
 const URL               = require('url');
+const createGzip        = require('zlib').createGzip;
+const istextorbinary    = require('istextorbinary');
+const debug             = require('./debug');
 
 
 // HTTP client request that captures the request and sends it down the processing chain.
@@ -118,7 +121,40 @@ module.exports = class ProxyRequest extends HTTP.IncomingMessage {
         if (error)
           this.emit('error', error);
         else if (captured) {
-          const response = new ProxyResponse(captured);
+          let response = new ProxyResponse(captured);
+          if (needsGzip(captured)) {
+            debug('Re-gzipping captured response');
+            // We need to drop the content-length if it exists as it will get
+            // changed by the gzip compression. We don't buffer the gzipped
+            // output to calculate the content-length in case it's large.
+            delete response.headers['content-length'];
+            const gzip            = createGzip();
+            const origResponse    = response;
+            gzip.connection       = response.connection;
+            gzip.httpVersion      = response.httpVersion;
+            gzip.httpVersionMajor = response.httpVersionMajor;
+            gzip.httpVersionMinor = response.httpVersionMinor;
+            gzip.statusCode       = response.statusCode;
+            gzip.statusMessage    = response.statusMessage;
+            gzip.headers          = response.headers;
+            gzip.rawHeaders       = response.rawHeaders;
+            gzip.trailers         = response.trailers;
+            gzip.rawTrailers      = response.rawTrailers;
+            response.removeAllListeners('end');
+            response = response.pipe(gzip);
+            response.once('end', () => {
+              debug('Emitting close');
+              response.emit('close');
+            });
+          } else {
+            debug(
+              'not gzipping',
+              captured.headers['content-encoding'],
+              captured.body.length,
+              typeof captured.body[0],
+              JSON.stringify(captured.body[0], null, '  ')
+            );
+          }
           this.emit('response', response);
           response.resume();
         } else {
@@ -139,13 +175,27 @@ module.exports = class ProxyRequest extends HTTP.IncomingMessage {
 
 };
 
+function needsGzip(captured) {
+  if (captured.headers['content-encoding'] !== 'gzip') {
+    return false;
+  }
+  if (!captured.body.length) {
+    return false;
+  }
+  const data = captured.body;
+  if (typeof data === 'object' && istextorbinary.isTextSync(null, data)) {
+    return true;
+  }
+  return typeof data === 'string';
+}
+
 
 // HTTP client response that plays back a captured response.
 class ProxyResponse extends Stream.Readable {
 
   constructor(captured) {
     super();
-    this.once('end', ()=> {
+    this.once('end', () => {
       this.emit('close');
     });
 

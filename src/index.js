@@ -68,7 +68,7 @@ class Replay extends EventEmitter {
     this._localhosts  = new Set([ 'localhost', '127.0.0.1', '::1' ]);
     // Pass through requests to these servers
     this._passThrough = new Set();
-    // Dropp connections to these servers
+    // Drop connections to these servers
     this._dropped     = new Set();
 
     this.catalog = new Catalog(this);
@@ -171,7 +171,7 @@ function passToLocalhost(request) {
 
 // The default processing chain (from first to last):
 // - Pass through requests to localhost
-// - Log request to console is `deubg` is true
+// - Log request to console if DEBUG=replay (https://www.npmjs.com/package/debug)
 // - Replay recorded responses
 // - Pass through requests in bloody and cheat modes
 replay
